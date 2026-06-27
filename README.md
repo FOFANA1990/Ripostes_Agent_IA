@@ -25,9 +25,11 @@ Analyse descriptive   -->  Chaîne d'agents IA          -->  Monitoring & valida
 
 ```
 cnc-veille-riposte/
-├── analyse_corpus.py                  Phase 1 : script d'analyse descriptive du corpus
-├── analyse_corpus.ipynb                Phase 1 : même analyse, version notebook pédagogique
-├── requirements.txt                    Dépendances de la phase 1 (analyse descriptive)
+├── data.xlsx                            Corpus brut : 35 396 posts X/Twitter (non versionné, voir plus bas)
+├── dictionnaire_bdd.xlsx                Dictionnaire des données : nom et explication de chaque colonne du corpus
+├── analyse_corpus.py                    Phase 1 : script d'analyse descriptive du corpus
+├── analyse_corpus.ipynb                 Phase 1 : même analyse, version notebook pédagogique
+├── requirements.txt                     Dépendances de la phase 1 (analyse descriptive)
 │
 ├── agents_cnc/                         Phase 2 : chaîne d'agents IA
 │   ├── README.md                       Documentation détaillée de ce module
@@ -98,6 +100,45 @@ Composants :
 
 Voir `monitoring/README.md` pour les commandes d'installation et de lancement du backend et du frontend, ainsi que le détail des routes de l'API.
 
+## Le corpus (`data.xlsx`)
+
+Le corpus est un export de social listening : 35 396 posts X/Twitter publiés en français, tous originaires de France, couvrant la période du 19 mars au 1ᵉʳ mai 2026 (42 jours), pour 10 437 auteurs uniques et un reach cumulé d'environ 77,8 millions.
+
+Répartition par type de message (`Engagement Type`) :
+
+| Type | Nombre de posts | Part |
+|---|---|---|
+| Retweet | 30 368 | 85,8 % |
+| Réponse (reply) | 3 623 | 10,2 % |
+| Citation (quote) | 734 | 2,1 % |
+| Message original | 671 | 1,9 % |
+
+Répartition par sentiment :
+
+| Sentiment | Nombre de posts | Part |
+|---|---|---|
+| Neutre | 23 476 | 66,3 % |
+| Négatif | 10 861 | 30,7 % |
+| Positif | 1 059 | 3,0 % |
+
+Le fichier `dictionnaire_bdd.xlsx` documente la définition exacte de chacune des 30 colonnes du corpus. Les colonnes les plus utilisées par les scripts et les agents sont les suivantes :
+
+| Colonne | Rôle dans l'analyse |
+|---|---|
+| `Date` | Horodatage du post (`YYYY-MM-DD HH:MM:SS`), base de toute la chronologie. |
+| `Author`, `X Author ID` | Identification de l'auteur du post. |
+| `Full Text`, `message_normalizer` | Texte du post, brut puis nettoyé (minuscules, sans accents), utilisé pour la détection des angles narratifs. |
+| `Engagement Type` | Nature du message : vide pour un message original, sinon `RETWEET`, `QUOTE` ou `REPLY`. |
+| `X Repost of` | Auteur retweeté ; permet de reconstruire les cascades de diffusion et d'identifier les amplificateurs. |
+| `Url` | URL du post, utilisée pour relier un retweet à son message d'origine. |
+| `Likes`, `Comments`, `Shares`, `Impressions`, `Reach` | Indicateurs d'engagement et d'audience du post. |
+| `X Followers`, `X Following`, `X Posts`, `X Verified` | Caractéristiques du compte auteur au moment du post (audience, ancienneté, certification). |
+| `Sentiment` | Sentiment global du message, déjà labellisé dans le corpus. |
+| `Hashtags` | Hashtags présents dans le message. |
+| `postID`, `postDate` | Identifiant unique du post et date seule (sans l'heure). |
+
+Quelques colonnes comportent une proportion significative de valeurs vides, par construction (et non par anomalie) : `Hashtags` (95,7 % de posts sans hashtag), `X Reply to` (89,8 %, rempli uniquement pour les réponses), `City` / `City Code` (50,6 %, dépendent du déclaratif de l'auteur), `Expanded URLs` (20,0 %) et `X Repost of` (14,2 %, rempli uniquement pour les retweets). Les scripts de la phase 1 et la fonction `load_corpus` de la phase 2 traitent ces vides de façon cohérente (par exemple, `Engagement Type` vide est interprété comme message original).
+
 ## Mise en route — vue d'ensemble des trois phases
 
 Les commandes détaillées de chaque module figurent dans son propre README ; voici l'enchaînement global pour reproduire le projet de bout en bout.
@@ -127,7 +168,7 @@ npm run dev                            # tableau de bord sur http://localhost:51
 
 ## Données et confidentialité
 
-Le corpus (`data.xlsx`) contient des données d'auteurs de posts et n'est volontairement pas versionné dans ce dépôt (voir `.gitignore`) ; il doit être placé à la racine du projet, à côté de `analyse_corpus.py`, et récupéré séparément par les collaborateurs. De même, les résultats générés (dossier `resultats/`, fichiers `resultats_*.json`, `monitoring/backend/monitoring_seed.json`) ne sont pas versionnés : ils sont recalculés localement à partir du corpus.
+Le corpus (`data.xlsx`) contient des données d'auteurs de posts et n'est volontairement pas versionné dans ce dépôt (voir `.gitignore`) ; il doit être placé à la racine du projet, à côté de `analyse_corpus.py`, et récupéré séparément par les collaborateurs. Le fichier `dictionnaire_bdd.xlsx`, qui documente les colonnes du corpus, suit la même règle et n'est pas versionné non plus, bien qu'il ne contienne lui-même aucune donnée personnelle. De même, les résultats générés (dossier `resultats/`, fichiers `resultats_*.json`, `monitoring/backend/monitoring_seed.json`) ne sont pas versionnés : ils sont recalculés localement à partir du corpus.
 
 Les clés API des fournisseurs de modèles de langage (Gemini, Mistral) ne doivent jamais être codées en dur ni versionnées : elles se configurent en variables d'environnement, à partir du modèle fourni dans `agents_cnc/.env.example`.
 
