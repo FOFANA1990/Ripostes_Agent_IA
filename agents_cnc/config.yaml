@@ -1,0 +1,44 @@
+# =============================================================================
+# config.yaml — Configuration de l'application d'agents.
+#
+# Deux couches :
+#   - GÉNÉRIQUE  (llm, runtime, trigger) : réutilisable pour TOUT projet d'agents.
+#   - DOMAINE    (detection)             : spécifique au cas CNC ; c'est la SEULE
+#                                          section à adapter pour un autre problème.
+#
+# Les SECRETS (clés API) ne sont PAS ici : ils restent en variables
+# d'environnement (GOOGLE_API_KEY / MISTRAL_API_KEY), cf. .env.example.
+# =============================================================================
+
+# --- GÉNÉRIQUE ---------------------------------------------------------------
+llm:
+  provider: gemini
+  model: gemini-2.5-flash      # PAS 1.5 — il a été retiré
+  max_retries: 6             # null = modèle par défaut du fournisseur
+  temperature: 0.0          # 0 = déterminisme (anti-hallucination)
+  max_retries: 2
+  timeout: 60
+
+runtime:
+  log_level: INFO
+  output_dir: resultats
+  verbose: true
+
+trigger:                    # quand déclencher les agents en aval
+  mode: on_threshold        # on_threshold | on_escalation
+  min_level: montee         # faible | montee | crise
+  once_per_event: true      # on_threshold : un seul déclenchement par événement
+  cooldown_min: 0           # délai minimal (minutes) entre deux déclenchements
+
+# --- DOMAINE (CNC) -----------------------------------------------------------
+detection:
+  baseline_window_h: 24     # fenêtre de la ligne de base glissante
+  factor_faible: 3.0        # volume/h > 3x base -> faible
+  factor_montee: 6.0        # > 6x -> montee
+  factor_crise: 12.0        # > 12x -> crise
+  min_baseline: 5.0         # plancher anti faux-positifs
+  close_after_h: 6          # heures calmes avant clôture d'un événement
+  max_source_posts: 5
+  max_amplifiers: 8
+  # narratives: laissé vide -> valeurs par défaut du domaine (data_loader.DEFAULT_NARRATIVES)
+  narratives: {}

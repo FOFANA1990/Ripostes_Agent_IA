@@ -1,0 +1,40 @@
+# ===== Secrets =====
+.env
+*.env
+!*.env.example
+
+# ===== Python =====
+venv/
+.venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.ipynb_checkpoints/
+
+# ===== Node / Frontend =====
+node_modules/
+dist/
+build/
+.vite/
+
+# ===== Données sensibles (RGPD : données d'auteurs) =====
+# Le corpus n'est PAS versionné. Les collaborateurs le récupèrent à part.
+data.xlsx
+dictionnaire_bdd.xlsx
+*.xlsx
+
+# ===== Fichiers générés =====
+resultats/
+monitoring/backend/monitoring_seed.json
+resultats_*.json
+**/*.pdf
+slide-*.jpg
+s3-*.jpg
+viz_*.png
+~$*
+
+# ===== OS / IDE =====
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
