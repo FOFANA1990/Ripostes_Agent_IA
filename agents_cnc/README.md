@@ -49,6 +49,23 @@ python run_demo.py --input ../data.xlsx --provider mistral
 
 Sortie : un résumé console + `resultats_agents.json` (détection + fiches + brouillons de riposte).
 
+## Importer un export TweetClaw
+
+Le chargeur de corpus accepte aussi un CSV exporté depuis TweetClaw lorsque le
+fichier contient au moins une date (`createdAt` ou `created_at`) et un texte
+(`text`, `fullText` ou `content`). Les colonnes sont normalisées vers le schéma
+utilisé par l'agent déterministe (`Date`, `Full Text`, `message_normalizer`,
+`Author`, `Url`, compteurs d'engagement).
+
+```bash
+python run_demo.py --input ../exports/tweetclaw.csv --provider mock
+python run_stream.py --input ../exports/tweetclaw.csv --provider mock
+```
+
+Cette voie reste une entrée de données hors-ligne : elle ne collecte pas un flux
+live, ne publie rien sur X et conserve la validation humaine du module
+`monitoring/`.
+
 ## Structure
 
 | Fichier | Rôle |
