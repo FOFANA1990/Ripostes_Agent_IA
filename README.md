@@ -89,6 +89,12 @@ Deux modes d'exécution :
 
 Fournisseurs de modèle de langage pris en charge : Gemini (`GOOGLE_API_KEY`), Mistral (`MISTRAL_API_KEY`), ou un mode `mock` sans appel réel (utile pour valider la chaîne sans clé API). Voir `agents_cnc/README.md` pour le détail des commandes, de la configuration (`config.yaml`) et de la structure des modules.
 
+Le chargeur de la phase 2 accepte également un CSV TweetClaw hors-ligne
+contenant `createdAt`/`created_at` et `text`/`fullText`. Il le normalise vers
+les colonnes du corpus interne, ce qui permet de tester la chaîne sur des
+instantanés X/Twitter récents sans ajouter de collecte live ni de publication
+automatique.
+
 ## Phase 3 — Monitoring & validation (`monitoring/`)
 
 But : garantir qu'aucune riposte n'est publiée sans décision humaine. Un opérateur CNC consulte les événements détectés et, pour chacun, valide, édite, rejette (avec motif) ou demande un fact-check complémentaire.
